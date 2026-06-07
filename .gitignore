@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Logs
+job_logs/
+joblog/
+*.log
+*.err
+*.out
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Temporary outputs
+examples/*/RL_practice/*/results/
+examples/*/preds/
+lightning_logs/
+tensorboard/
+
+# Large model/data files; remove these lines if you intentionally want to track them
+*.ckpt
+*.pt
+*.pth
+*.bin
+data/
+checkpoints/
+
+# Conda/local environment
+.conda/
+.env

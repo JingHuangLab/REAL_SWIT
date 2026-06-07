@@ -1,0 +1,57 @@
+name: real_swit
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Python
+  - python=3.8
+  - pip
+
+  # Core scientific Python packages
+  - numpy=1.20.*
+  - pandas=1.3.*
+  - scipy=1.6.*
+  - scikit-learn=0.24.*
+  - matplotlib=3.4.*
+  - tqdm
+  - joblib
+
+  # Cheminformatics
+  - rdkit=2021.03.*
+
+  # Deep learning
+  # REAL-SWIT was originally tested with PyTorch 1.9 and CUDA 11.1.
+  - pytorch=1.9.*
+  - cudatoolkit=11.1
+
+  # Optional plotting/utility packages used by some scripts
+  - seaborn
+  - pyyaml
+
+  # Pip packages
+  - pip:
+      # Reinforcement-learning and distributed prediction utilities
+      - ray==1.5.1
+
+      # Target-specific scoring model training
+      - pytorch-lightning==1.4.1
+      - torchmetrics==0.4.1
+
+      # Generative model training utilities
+      - tensorflow==2.5.0
+      - keras-nightly==2.5.0.dev2021032900
+      - Keras-Preprocessing==1.1.2
+      - tensorboard==2.6.0
+      - tensorboardX==2.4
+
+      # Molecular preprocessing utilities
+      - deepsmiles==1.0.1
+      - MolVS==0.1.1
+      - syba==1.0.2a0
+
+      # Utility dependencies used by REINVENT-style scripts
+      - pathos==0.2.8
+      - ConfigArgParse==1.5.2
+      - tabulate==0.8.9
