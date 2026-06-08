@@ -17,8 +17,6 @@ joblog/
 .idea/
 
 # Temporary outputs
-examples/*/RL_practice/*/results/
-examples/*/preds/
 lightning_logs/
 tensorboard/
 
@@ -27,7 +25,7 @@ tensorboard/
 *.pt
 *.pth
 *.bin
-data/
+data/*training*
 checkpoints/
 
 # Conda/local environment
