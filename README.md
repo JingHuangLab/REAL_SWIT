@@ -3,8 +3,10 @@
 REAL-SWIT is a target-guided molecular generation workflow for exploring synthesizable chemical space. It combines a generative model trained on REAL Space-derived molecules with a target-specific scoring model trained to approximate docking scores, enabling iterative reinforcement-learning-based generation of molecules prioritized for a given protein target.
 
 This repository contains the code, example data, and pretrained components associated with the manuscript.
+
 **Access to Synthesizable Chemical Space Through Generative Models Enables Ultra-Large Virtual Screening**  
 Kaiyue Zhang *et al.*
+
 ---
 
 ## Pretrained models
