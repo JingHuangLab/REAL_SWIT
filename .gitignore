@@ -21,12 +21,11 @@ lightning_logs/
 tensorboard/
 
 # Large model/data files; remove these lines if you intentionally want to track them
-*.ckpt
 *.pt
 *.pth
 *.bin
-data/*training*
-checkpoints/
+data/generative_training_data
+checkpoints/*_model.ckpt
 
 # Conda/local environment
 .conda/

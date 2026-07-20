@@ -2,9 +2,11 @@
 
 REAL-SWIT is a target-guided molecular generation workflow for exploring synthesizable chemical space. It combines a generative model trained on REAL Space-derived molecules with a target-specific scoring model trained to approximate docking scores, enabling iterative reinforcement-learning-based generation of molecules prioritized for a given protein target.
 
-This repository contains the code, example data, and pretrained components associated with the manuscript:
+This repository contains the code, example data, and pretrained components associated with the manuscript.
 
-**Access to Synthesizable Chemical Space Through Molecular Generative Models Enables Ultra-Large Virtual Screening**  
+Pretrained model weights are (or will be) hosted on the Hugging Face Hub at `https://huggingface.co/<ORG-or-USER>/REAL-SWIT`. You can download the weights via `git lfs` or programmatically using the `huggingface_hub` Python client; see the Usage and Notes sections below for details.
+
+**Access to Synthesizable Chemical Space Through Generative Models Enables Ultra-Large Virtual Screening**  
 Kaiyue Zhang *et al.*
 
 ---
