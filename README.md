@@ -4,7 +4,7 @@ REAL-SWIT is a target-guided molecular generation workflow for exploring synthes
 
 This repository contains the code, example data, and pretrained components associated with the manuscript.
 
-Pretrained model weights are (or will be) hosted on the Hugging Face Hub at `https://huggingface.co/<ORG-or-USER>/REAL-SWIT`. You can download the weights via `git lfs` or programmatically using the `huggingface_hub` Python client; see the Usage and Notes sections below for details.
+Pretrained model weights are (or will be) hosted on the Hugging Face Hub at `https://huggingface.co/KaiyueZhang957/REAL-SWIT-checkpoints`. You can download the weights via `git lfs` or programmatically using the `huggingface_hub` Python client; see the Usage and Notes sections below for details.
 
 **Access to Synthesizable Chemical Space Through Generative Models Enables Ultra-Large Virtual Screening**  
 Kaiyue Zhang *et al.*
