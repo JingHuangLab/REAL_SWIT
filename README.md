@@ -7,12 +7,10 @@ This repository contains the code, example data, and pretrained components assoc
 **Access to Synthesizable Chemical Space Through Generative Models Enables Ultra-Large Virtual Screening**  
 Kaiyue Zhang *et al.*
 
----
 
 ## Pretrained models
 Pretrained model weights are hosted on the Hugging Face Hub: [REAL‑SWIT checkpoints on Hugging Face](https://huggingface.co/KaiyueZhang957/REAL-SWIT-checkpoints). Please download the pretrained file `QBL_model.ckpt` from that repository and place it in this project's `checkpoints/` directory before running the generation workflows.
 
----
 
 ## Requirements
 
@@ -22,7 +20,6 @@ REAL-SWIT was developed and tested on a Linux-based GPU cluster. Most Python scr
 - Python environment specified in `environment.yml`
 - CUDA-enabled GPU recommended for model training and generation
 
----
 
 ## Installation
 
@@ -38,7 +35,6 @@ Set the repository root as the Python path when running scripts from the command
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 ```
 
----
 
 ## Repository structure
 
@@ -66,17 +62,17 @@ REAL_SWIT/
 
 Main folders and files:
 
-- `data/`: input datasets and demo datasets.
-- `examples/`: task-specific outputs, including trained scoring models, predictions, RL configurations, and generated molecules.
-- `checkpoints/`: pretrained model checkpoints, including the default generative model `QBL_model.ckpt`.
-- `gen_models/`: scripts for training and sampling from the molecular generative model.
-- `mpn_models/`: implementation of the target-specific scoring model.
-- `train_generative_model.sh`: example workflow for training a generative model.
-- `train_scoring_model.py`: trains a target-specific scoring model from docking-score-labeled molecules.
-- `evaluate_target_scoring_model.py`: predicts target-specific scores and optionally evaluates performance when labels are provided.
-- `prepare_rl_config.py`: creates the reinforcement learning configuration file for target-guided generation.
+- `data/`: input datasets and small demo datasets for training and evaluation.
+- `examples/`: runtime outputs organized by task, including trained scoring models, predictions, RL configurations, and generated molecules. This directory is populated when the workflows are run.
+- `checkpoints/`: directory for pretrained generative model checkpoints, including the default `QBL_model.ckpt`.
+- `gen_models/`: scripts for training generative models and performing molecular generation.
+- `mpn_models/`: implementation of the target-specific molecular scoring model.
+- **`train_generative_model.sh`**: example SLURM workflow for training a generative model.
+- `train_scoring_model.py`: trains a target-specific scoring model using molecules labeled with docking scores.
+- `evaluate_target_scoring_model.py`: generates target-specific score predictions and optionally evaluates model performance when labels are available.
+- **`prepare_rl_config.py`**: creates the reinforcement learning configuration file for target-guided generation.
+- **`submit_real_swit.sh`**: example SLURM script for running REAL-SWIT target-guided molecular generation.
 
----
 
 ## Input data format
 
@@ -104,7 +100,6 @@ REAL-SWIT contains three main workflows:
 
 If you use the pretrained generative model provided with this repository, you can skip Step 1 and start from Step 2.
 
----
 
 ## Step 1. Optional: train a molecular generative model
 
@@ -164,7 +159,6 @@ python gen_models/train_model.py \
 
 After training, select the desired trained checkpoint and use it as the prior and initial agent model in the RL configuration.
 
----
 
 ## Step 2. Train a target-specific scoring model
 
@@ -201,7 +195,7 @@ If a test dataset with docking scores is provided, the script also evaluates the
 examples/<task_name>/preds/
 ```
 
----
+
 
 ## Step 3. Create an RL configuration file
 
@@ -241,7 +235,7 @@ Before running large-scale generation, check the user-editable settings at the b
 - `target_score_weight`: weight of the target-specific scoring component.
 - `sigma`: sigma value used in the augmented likelihood calculation.
 
----
+
 
 ## Step 4. Run target-guided molecular generation
 
@@ -263,7 +257,7 @@ The main output file is usually:
 scaffold_memory.csv
 ```
 
----
+
 
 ## Notes for SLURM users
 
@@ -277,7 +271,7 @@ Example SLURM scripts are provided for running training and generation on GPU cl
 
 Avoid hard-coded absolute paths when preparing a public GitHub release. Prefer paths relative to the repository root whenever possible.
 
----
+
 
 ## Citation
 
@@ -289,7 +283,7 @@ Kaiyue Zhang et al. Access to Synthesizable Chemical Space Through Molecular Gen
 
 A BibTeX entry will be added after publication.
 
----
+
 
 ## Contact
 
@@ -300,7 +294,7 @@ For questions or issues, please contact:
 
 Alternatively, please open an issue on GitHub.
 
----
+
 
 ## Acknowledgments
 
