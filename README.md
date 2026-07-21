@@ -71,7 +71,7 @@ Main folders and files:
 - `train_scoring_model.py`: trains a target-specific scoring model using molecules labeled with docking scores.
 - `evaluate_target_scoring_model.py`: generates target-specific score predictions and optionally evaluates model performance when labels are available.
 - **`prepare_rl_config.py`**: creates the reinforcement learning configuration file for target-guided generation.
-- **`submit_real_swit.sh`**: example SLURM script for running REAL-SWIT target-guided molecular generation.
+- **`submit_real_swit.sh`**: SLURM-compatible entry point for training or evaluating a target-specific scoring model and running target-guided generation.
 
 
 ## Input data format
@@ -115,47 +115,15 @@ The generative model training workflow consists of three stages:
 2. Create an empty model and prepare the vocabulary from the training data.
 3. Train the generative model.
 
-An example SLURM script is provided in:
+The complete workflow is provided in `train_generative_model.sh`. Before running it, edit the **User-editable settings** section to specify the input files, output directory, model hyperparameters, and local computing environment.
+
+Run the workflow on a SLURM cluster with:
 
 ```bash
-train_generative_model.sh
+sbatch train_generative_model.sh
 ```
 
-The core commands are:
-
-```bash
-# 1. Create randomized SMILES for the training set
-python gen_models/create_randomized_smiles.py \
-    -i data/demo_data/generative_train_demo.csv \
-    -o gm_training_demo/training \
-    -n 150
-
-# 2. Create randomized SMILES for the validation set
-python gen_models/create_randomized_smiles.py \
-    -i data/demo_data/generative_validation_demo.csv \
-    -o gm_training_demo/validation \
-    -n 150
-
-# 3. Create an empty model and build the vocabulary
-python gen_models/create_model.py \
-    -l 6 \
-    -s 2048 \
-    -e 1024 \
-    -i gm_training_demo/training/001.smi \
-    -o gm_training_demo/models/model.empty
-
-# 4. Train the generative model
-python gen_models/train_model.py \
-    -i gm_training_demo/models/model.empty \
-    -o gm_training_demo/models/model.trained \
-    -s gm_training_demo/training \
-    -e 150 \
-    --lrm ada \
-    --csl gm_training_demo/tensorboard \
-    --csv gm_training_demo/validation \
-    --csn 100 \
-    --batch-size 128
-```
+By default, the script uses the demo training and validation datasets under `data/demo_data/` and writes randomized SMILES, model checkpoints, and TensorBoard logs to `gm_training_demo/`. Individual stages can be enabled or disabled using `CREATE_RANDOMIZED_SMILES`, `CREATE_EMPTY_MODEL`, `TRAIN_MODEL`, and `SAMPLE_AFTER_TRAINING`.
 
 After training, select the desired trained checkpoint and use it as the prior and initial agent model in the RL configuration.
 
@@ -164,7 +132,16 @@ After training, select the desired trained checkpoint and use it as the prior an
 
 For each new target, train a target-specific scoring model using molecules labeled by docking scores.
 
-Example command:
+The recommended SLURM command is:
+
+```bash
+sbatch submit_real_swit.sh \
+    ROCK1_demo train \
+    data/demo_data/rock1_train_demo.csv \
+    data/demo_data/rock1_test_demo.csv
+```
+
+The equivalent Python command is:
 
 ```bash
 python train_scoring_model.py \
@@ -172,7 +149,7 @@ python train_scoring_model.py \
     ROCK1_demo \
     --testing_dataset_path data/demo_data/rock1_test_demo.csv \
     --ncpu 6 \
-    --epochs 10
+    --epochs 100
 ```
 
 Arguments:
