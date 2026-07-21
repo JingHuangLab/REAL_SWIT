@@ -23,11 +23,14 @@ REAL-SWIT was developed and tested on a Linux-based GPU cluster. Most Python scr
 
 ## Installation
 
-We recommend installing REAL-SWIT with Conda or Mamba.
+Clone the repository and create the provided Conda environment:
 
 ```bash
+git clone https://github.com/JingHuangLab/REAL_SWIT.git
+cd REAL_SWIT
 conda env create -f environment.yml
 conda activate real_swit
+```
 
 Set the repository root as the Python path when running scripts from the command line:
 
