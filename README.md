@@ -202,7 +202,7 @@ and automatically locates the target-specific scoring model checkpoint under:
 examples/ROCK1_demo/lightning_logs/<version>/checkpoints/
 ```
 
-Before running large-scale generation, check the user-editable settings at the beginning of `prepare_rl_config.py`, including:
+**Before running large-scale generation, check the user-editable settings at the beginning of `prepare_rl_config.py`, including:**
 
 - `gen_model_name`: pretrained generative model checkpoint name.
 - `n_steps`: number of RL optimization steps.
@@ -216,7 +216,14 @@ Before running large-scale generation, check the user-editable settings at the b
 
 ## Step 4. Run target-guided molecular generation
 
-Run reinforcement-learning-based molecular generation using the configuration file generated in Step 3:
+Run reinforcement-learning-based molecular generation using the configuration file generated in Step 3. On a SLURM cluster, use:
+
+```bash
+sbatch submit_real_swit.sh ROCK1_demo generate run_001
+```
+
+
+The underlying Python command is:
 
 ```bash
 python gen_models/input.py examples/ROCK1_demo/RL_practice/run_001/RL_config.json
@@ -255,7 +262,7 @@ Avoid hard-coded absolute paths when preparing a public GitHub release. Prefer p
 If you use REAL-SWIT in your work, please cite the associated manuscript:
 
 ```text
-Kaiyue Zhang et al. Access to Synthesizable Chemical Space Through Molecular Generative Models Enables Ultra-Large Virtual Screening.
+Kaiyue Zhang et al. Access to Synthesizable Chemical Space Through Generative Models Enables Ultra-Large Virtual Screening.
 ```
 
 A BibTeX entry will be added after publication.
