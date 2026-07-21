@@ -12,9 +12,9 @@
 # Submit and run a REAL-SWIT workflow on a SLURM cluster
 #
 # Usage examples:
-#   sbatch submit_slurm_job.sh ROCK1 train data/demo_data/rock1_train.csv data/demo_data/rock1_test.csv
-#   sbatch submit_slurm_job.sh ROCK1 predict examples/ROCK1/lightning_logs/version_0/checkpoints/model.ckpt data/demo_data/rock1_test.csv
-#   sbatch submit_slurm_job.sh ROCK1 generate run_001
+#   sbatch submit_real_swit.sh ROCK1 train data/demo_data/rock1_train.csv data/demo_data/rock1_test.csv
+#   sbatch submit_real_swit.sh ROCK1 predict examples/ROCK1/lightning_logs/version_0/checkpoints/model.ckpt data/demo_data/rock1_test.csv
+#   sbatch submit_real_swit.sh ROCK1 generate run_001
 #
 # Supported modes:
 #   train     Train a target-specific scoring model.
@@ -56,8 +56,8 @@ DEFAULT_RL_RUN_NAME="run_001"
 print_usage() {
     cat <<USAGE
 Usage:
-  bash submit_slurm_job.sh <TASK_NAME> <MODE> [MODE_ARGUMENTS]
-  sbatch submit_slurm_job.sh <TASK_NAME> <MODE> [MODE_ARGUMENTS]
+  bash submit_real_swit.sh <TASK_NAME> <MODE> [MODE_ARGUMENTS]
+  sbatch submit_real_swit.sh <TASK_NAME> <MODE> [MODE_ARGUMENTS]
 
 Modes:
   train <TRAIN_CSV> <TEST_CSV>
@@ -75,9 +75,9 @@ Modes:
       If RL_RUN_NAME is omitted, DEFAULT_RL_RUN_NAME is used.
 
 Examples:
-  bash submit_slurm_job.sh ROCK1 train data/demo_data/rock1_train.csv data/demo_data/rock1_test.csv
-  bash submit_slurm_job.sh ROCK1 predict examples/ROCK1/lightning_logs/version_0/checkpoints/epoch=9-step=159.ckpt data/demo_data/rock1_test.csv
-  bash submit_slurm_job.sh ROCK1 generate run_001
+  bash submit_real_swit.sh ROCK1 train data/demo_data/rock1_train.csv data/demo_data/rock1_test.csv
+  bash submit_real_swit.sh ROCK1 predict examples/ROCK1/lightning_logs/version_0/checkpoints/epoch=9-step=159.ckpt data/demo_data/rock1_test.csv
+  bash submit_real_swit.sh ROCK1 generate run_001
 USAGE
 }
 

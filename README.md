@@ -10,7 +10,7 @@ Kaiyue Zhang *et al.*
 ---
 
 ## Pretrained models
-Pretrained model weights are hosted on the Hugging Face Hub: [REAL‑SWIT checkpoints on Hugging Face](https://huggingface.co/KaiyueZhang957/REAL-SWIT-checkpoints). Please download the pretrained file `QBL_model.ckpt` from that repository and place it in this project's `checkpoints/` directory before running the generation or training workflows.
+Pretrained model weights are hosted on the Hugging Face Hub: [REAL‑SWIT checkpoints on Hugging Face](https://huggingface.co/KaiyueZhang957/REAL-SWIT-checkpoints). Please download the pretrained file `QBL_model.ckpt` from that repository and place it in this project's `checkpoints/` directory before running the generation workflows.
 
 ---
 
@@ -50,6 +50,8 @@ REAL_SWIT/
 ├── environment.yml
 ├── data/
 │   └── demo_data/
+│   └── surrogate_initial_data/
+│   └── surrogate_training_data/
 ├── examples/
 ├── checkpoints/
 │   └── QBL_model.ckpt
@@ -59,7 +61,7 @@ REAL_SWIT/
 ├── train_scoring_model.py
 ├── evaluate_target_scoring_model.py
 ├── prepare_rl_config.py
-└── run_generation.sh
+└── submit_real_swit.sh
 ```
 
 Main folders and files:
