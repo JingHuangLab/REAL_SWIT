@@ -241,9 +241,17 @@ if [[ "${SELECT_BEST_CHECKPOINT}" == true ]]; then
         --epoch-offset "${BEST_EPOCH_OFFSET}"
 fi
 
-# Step 5: optionally sample molecules from the selected checkpoint.
+# Step 5: optionally sample molecules.
 if [[ "${SAMPLE_AFTER_TRAINING}" == true ]]; then
-    if [[ -z "${SAMPLE_MODEL_PATH}" ]]; then
+    if [[ "${TRAIN_MODEL}" == true ]]; then
+        if [[ "${SELECT_BEST_CHECKPOINT}" != true ]]; then
+            echo "ERROR: SELECT_BEST_CHECKPOINT must be true when training and sampling in the same run." >&2
+            exit 1
+        fi
+
+        # Always use the best checkpoint selected from the current training run.
+        SAMPLE_MODEL_PATH="${BEST_MODEL_PATH}"
+    elif [[ -z "${SAMPLE_MODEL_PATH}" ]]; then
         echo "ERROR: SAMPLE_MODEL_PATH must be set when sampling without training in the same run." >&2
         exit 1
     fi
@@ -253,7 +261,7 @@ if [[ "${SAMPLE_AFTER_TRAINING}" == true ]]; then
         exit 1
     fi
 
-    echo "Sampling molecules from the trained generative model..."
+    echo "Sampling molecules from: ${SAMPLE_MODEL_PATH}"
     time python gen_models/sample_from_model.py \
         -m "${SAMPLE_MODEL_PATH}" \
         -n "${N_SAMPLED_MOLECULES}" \

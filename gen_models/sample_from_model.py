@@ -37,7 +37,6 @@ def main():
     args = parse_args()
 
     model = mm.Model.load_from_file(args.model_path, sampling_mode=True)
-    print(model.network.parameters())
     open_func = open
     if args.use_gzip:
         open_func = gzip.open
