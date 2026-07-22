@@ -12,6 +12,7 @@ job_logs/*
 .DS_Store
 .vscode/
 .idea/
+.gitignore
 
 # Temporary outputs
 lightning_logs/
