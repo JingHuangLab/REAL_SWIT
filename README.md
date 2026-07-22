@@ -23,19 +23,27 @@ REAL-SWIT was developed and tested on a Linux-based GPU cluster. Most Python scr
 
 ## Installation
 
-Clone the repository and create the provided Conda environment:
+Clone the repository and enter the project directory:
 
 ```bash
 git clone https://github.com/JingHuangLab/REAL_SWIT.git
 cd REAL_SWIT
-conda env create -f environment.yml
-conda activate real_swit
 ```
 
-Set the repository root as the Python path when running scripts from the command line:
+Create the `real_swit` environment from `environment.yml`. We recommend using micromamba for faster dependency resolution, although Conda is also supported.
+
+**Recommended: micromamba**
 
 ```bash
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+micromamba create -f environment.yml
+micromamba activate real_swit
+```
+
+**Alternative: Conda**
+
+```bash
+conda env create -f environment.yml
+conda activate real_swit
 ```
 
 
@@ -58,7 +66,7 @@ REAL_SWIT/
 ├── mpn_models/
 ├── train_generative_model.sh
 ├── train_scoring_model.py
-├── evaluate_target_scoring_model.py
+├── evaluate_scoring_model.py
 ├── prepare_rl_config.py
 └── submit_real_swit.sh
 ```
@@ -72,7 +80,7 @@ Main folders and files:
 - `mpn_models/`: implementation of the target-specific molecular scoring model.
 - **`train_generative_model.sh`**: example SLURM workflow for training a generative model.
 - `train_scoring_model.py`: trains a target-specific scoring model using molecules labeled with docking scores.
-- `evaluate_target_scoring_model.py`: generates target-specific score predictions and optionally evaluates model performance when labels are available.
+- `evaluate_scoring_model.py`: generates target-specific score predictions and optionally evaluates model performance when labels are available.
 - **`prepare_rl_config.py`**: creates the reinforcement learning configuration file for target-guided generation.
 - **`submit_real_swit.sh`**: SLURM-compatible entry point for training or evaluating a target-specific scoring model and running target-guided generation.
 
@@ -135,6 +143,15 @@ After training, select the desired trained checkpoint and use it as the prior an
 
 For each new target, train a target-specific scoring model using molecules labeled by docking scores.
 
+Before running `submit_real_swit.sh`, edit its **User-editable settings** section as needed:
+
+- `CONDA_ENV_NAME`: name of the micromamba or Conda environment.
+- `CUDA_MODULE`: optional CUDA module used on the local cluster. Leave it empty if environment modules are not used.
+- `NCPU`: number of CPU cores passed to the scoring-model scripts.
+- `N_EPOCHS`: number of training epochs.
+
+Also update the SLURM directives at the beginning of the script, particularly the partition, GPU, CPU, memory, and log settings, according to the local cluster environment. The task name and input dataset paths are supplied directly in the submission command.
+
 The recommended SLURM command is:
 
 ```bash
@@ -181,7 +198,17 @@ examples/<task_name>/preds/
 
 After training the target-specific scoring model, create an RL configuration file for target-guided generation.
 
-Example command:
+**Before running `prepare_rl_config.py`, check the user-editable settings at the beginning of the script:**
+
+- `gen_model_name`: pretrained or custom generative model checkpoint name.
+- `n_steps`: number of RL optimization steps.
+- `n_mols`: maximum number of molecules generated during the RL run.
+- `low_mw` and `high_mw`: molecular weight bounds.
+- `max_inverted_score`: upper bound used for the sign-inverted target-specific score. The docking score is multiplied by `-1` before transformation, so a raw docking score of `-50` corresponds to `50` here.
+- `target_score_weight`: weight of the target-specific scoring component.
+- `sigma`: sigma value used in the augmented likelihood calculation.
+
+Then provide the task name and RL run name in the command:
 
 ```bash
 python prepare_rl_config.py ROCK1_demo run_001
@@ -205,21 +232,14 @@ and automatically locates the target-specific scoring model checkpoint under:
 examples/ROCK1_demo/lightning_logs/<version>/checkpoints/
 ```
 
-**Before running large-scale generation, check the user-editable settings at the beginning of `prepare_rl_config.py`, including:**
-
-- `gen_model_name`: pretrained generative model checkpoint name.
-- `n_steps`: number of RL optimization steps.
-- `n_mols`: maximum number of generated molecules allowed in the RL run.
-- `low_mw` and `high_mw`: molecular weight bounds.
-- `max_inverted_score`: upper bound used for the sign-inverted target-specific score. The docking score is multiplied by `-1` before transformation, so a raw docking score of `-50` corresponds to `50` here.
-- `target_score_weight`: weight of the target-specific scoring component.
-- `sigma`: sigma value used in the augmented likelihood calculation.
-
-
 
 ## Step 4. Run target-guided molecular generation
 
-Run reinforcement-learning-based molecular generation using the configuration file generated in Step 3. On a SLURM cluster, use:
+Run reinforcement-learning-based molecular generation using the configuration file generated in Step 3. 
+
+Before running `submit_real_swit.sh`, check the same environment and SLURM settings described in Step 2. For generation, also check `DEFAULT_RL_RUN_NAME`, which is used when no RL run name is supplied in the command. Ensure that the task name and RL run name match those used to create the configuration file in Step 3.
+
+On a SLURM cluster, use:
 
 ```bash
 sbatch submit_real_swit.sh ROCK1_demo generate run_001

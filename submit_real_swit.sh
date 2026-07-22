@@ -2,7 +2,7 @@
 #SBATCH -J real_swit
 #SBATCH -N 1
 #SBATCH -c 6
-#SBATCH -p A40,gpu
+#SBATCH -p YOUR_GPU_PARTITION
 #SBATCH --gres=gpu:1
 #SBATCH --mem=30G
 #SBATCH -o job_logs/%j.log
@@ -12,8 +12,8 @@
 # Submit and run a REAL-SWIT workflow on a SLURM cluster
 #
 # Usage examples:
-#   sbatch submit_real_swit.sh ROCK1 train data/demo_data/rock1_train.csv data/demo_data/rock1_test.csv
-#   sbatch submit_real_swit.sh ROCK1 predict examples/ROCK1/lightning_logs/version_0/checkpoints/model.ckpt data/demo_data/rock1_test.csv
+#   sbatch submit_real_swit.sh ROCK1 train data/demo_data/rock1_train_demo.csv data/demo_data/rock1_test_demo.csv
+#   sbatch submit_real_swit.sh ROCK1 predict examples/ROCK1/lightning_logs/version_0/checkpoints/model.ckpt data/demo_data/rock1_test_demo.csv
 #   sbatch submit_real_swit.sh ROCK1 generate run_001
 #
 # Supported modes:
@@ -36,10 +36,11 @@ CONDA_ENV_NAME="real_swit"
 
 # Optional CUDA module used on some Linux clusters.
 # Leave empty if your system does not use environment modules.
-CUDA_MODULE="mathlib/cuda/10.1.168_418.67"
+CUDA_MODULE=""
 
 # Number of CPU cores passed to Python scripts.
-NCPU=6
+# Defaults to the number allocated by SLURM.
+NCPU="${SLURM_CPUS_PER_TASK:-6}"
 
 # Number of epochs for training the target-specific scoring model.
 N_EPOCHS=100
@@ -75,8 +76,8 @@ Modes:
       If RL_RUN_NAME is omitted, DEFAULT_RL_RUN_NAME is used.
 
 Examples:
-  bash submit_real_swit.sh ROCK1 train data/demo_data/rock1_train.csv data/demo_data/rock1_test.csv
-  bash submit_real_swit.sh ROCK1 predict examples/ROCK1/lightning_logs/version_0/checkpoints/epoch=9-step=159.ckpt data/demo_data/rock1_test.csv
+  bash submit_real_swit.sh ROCK1 train data/demo_data/rock1_train_demo.csv data/demo_data/rock1_test_demo.csv
+  bash submit_real_swit.sh ROCK1 predict examples/ROCK1/lightning_logs/version_0/checkpoints/epoch=9-step=159.ckpt data/demo_data/rock1_test_demo.csv
   bash submit_real_swit.sh ROCK1 generate run_001
 USAGE
 }
@@ -91,29 +92,55 @@ TASK_NAME="$1"
 MODE="$2"
 shift 2
 
-# Locate the repository directory from the location of this script.
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Use the submission directory for SLURM jobs and the script directory otherwise.
+if [[ -n "${SLURM_JOB_ID:-}" ]]; then
+    REPO_DIR="${SLURM_SUBMIT_DIR}"
+else
+    REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
+
 cd "${REPO_DIR}"
 
-# Create the SLURM log directory if it does not already exist.
-mkdir -p job_logs
 
 # Load the CUDA module if requested and if the module command is available.
-if [[ -n "${CUDA_MODULE}" ]] && command -v module >/dev/null 2>&1; then
+if [[ -n "${CUDA_MODULE:-}" ]] && command -v module >/dev/null 2>&1; then
     module load "${CUDA_MODULE}"
 fi
 
-# Activate the Conda environment.
-if command -v conda >/dev/null 2>&1; then
-    source "$(conda info --base)/etc/profile.d/conda.sh"
-    conda activate "${CONDA_ENV_NAME}"
-else
-    echo "ERROR: conda was not found in PATH. Please install Conda or activate the environment manually." >&2
+# Activate the requested environment unless it is already active.
+if [[ "${CONDA_DEFAULT_ENV:-}" != "${CONDA_ENV_NAME}" ]]; then
+    MICROMAMBA_BIN=""
+
+    # MAMBA_EXE is normally defined by "micromamba shell init".
+    if [[ -n "${MAMBA_EXE:-}" && -x "${MAMBA_EXE}" ]]; then
+        MICROMAMBA_BIN="${MAMBA_EXE}"
+    else
+        MICROMAMBA_BIN="$(type -P micromamba 2>/dev/null || true)"
+    fi
+
+    if [[ -n "${MICROMAMBA_BIN}" && -x "${MICROMAMBA_BIN}" ]]; then
+        eval "$("${MICROMAMBA_BIN}" shell hook --shell bash)"
+        micromamba activate "${CONDA_ENV_NAME}"
+    elif command -v conda >/dev/null 2>&1; then
+        source "$(conda info --base)/etc/profile.d/conda.sh"
+        conda activate "${CONDA_ENV_NAME}"
+    else
+        echo "ERROR: Neither micromamba nor Conda could be initialized." >&2
+        echo "Activate '${CONDA_ENV_NAME}' before submitting the job, or ensure MAMBA_EXE is exported." >&2
+        exit 1
+    fi
+fi
+
+if [[ -z "${CONDA_PREFIX:-}" ]]; then
+    echo "ERROR: Environment '${CONDA_ENV_NAME}' was not activated correctly." >&2
     exit 1
 fi
 
+# Prefer the C++ runtime provided by the activated environment.
+export LD_LIBRARY_PATH="${CONDA_PREFIX}/lib:${LD_LIBRARY_PATH:-}"
+
 # Add the repository to PYTHONPATH so internal modules can be imported.
-export PYTHONPATH="${PYTHONPATH:-}:${REPO_DIR}"
+export PYTHONPATH="${REPO_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
 
 case "${MODE}" in
     train)

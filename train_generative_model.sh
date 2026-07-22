@@ -2,7 +2,7 @@
 #SBATCH -J train_generative_model
 #SBATCH -N 1
 #SBATCH -c 6
-#SBATCH -p A40,gpu
+#SBATCH -p YOUR_GPU_PARTITION
 #SBATCH --gres=gpu:1
 #SBATCH --mem=10G
 #SBATCH -o job_logs/%j.log
@@ -36,7 +36,7 @@ CONDA_ENV_NAME="real_swit"
 
 # Optional CUDA module used on some Linux clusters.
 # Leave empty if your system does not use environment modules.
-CUDA_MODULE="mathlib/cuda/10.1.168_418.67"
+CUDA_MODULE=""
 
 # Input training set located under data/demo_data/ by default.
 # The file should contain SMILES used to train the generative model.
@@ -52,8 +52,8 @@ DATA_DIR="data/demo_data"
 # Output directory for randomized SMILES, model checkpoints, and TensorBoard logs.
 OUTPUT_DIR="gm_training_demo"
 
-# Number of randomized SMILES generated for each input molecule.
-N_RANDOMIZED_SMILES=300
+# Number of randomized SMILES generated for each input molecule. Default: 300. Set to 10 for a quick test run.
+N_RANDOMIZED_SMILES=10
 
 # LSTM model depth.
 N_LAYERS=6
@@ -64,8 +64,8 @@ HIDDEN_SIZE=2048
 # Token embedding size.
 EMBEDDING_SIZE=1024
 
-# Number of training epochs.
-N_EPOCHS=300
+# Number of training epochs. Default: 300. Set to 10 for a quick test run.
+N_EPOCHS=10
 
 # Training batch size.
 BATCH_SIZE=128
@@ -80,6 +80,11 @@ CREATE_RANDOMIZED_SMILES=true
 # Whether to create an empty model and vocabulary before training.
 # Set to false if OUTPUT_DIR/models/model.empty already exists.
 CREATE_EMPTY_MODEL=true
+
+# SMILES file used to build the model vocabulary.
+# By default, use the provided vocabulary dataset. Alternatively, set this to
+# "${OUTPUT_DIR}/training/001.smi" to use the randomized training SMILES.
+VOCABULARY_FILE="data/demo_data/data4vocabulary_test.smi"
 
 # Whether to train the generative model.
 TRAIN_MODEL=true
@@ -103,30 +108,49 @@ SAMPLED_OUTPUT="${OUTPUT_DIR}/sampled_molecules.csv"
 # The code below usually does not need to be modified.
 # =============================================================================
 
-# Locate the repository directory from the location of this script.
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Use the directory from which the job was submitted as the repository directory.
+REPO_DIR="${SLURM_SUBMIT_DIR:-$(pwd)}"
 cd "${REPO_DIR}"
 
-# Create the SLURM log directory if it does not already exist.
-mkdir -p job_logs
+echo "Working directory: $(pwd)"
+echo "Repository directory: ${REPO_DIR}"
 
 # Load the CUDA module if requested and if the module command is available.
-if [[ -n "${CUDA_MODULE}" ]] && command -v module >/dev/null 2>&1; then
+if [[ -n "${CUDA_MODULE:-}" ]] && command -v module >/dev/null 2>&1; then
     module load "${CUDA_MODULE}"
 fi
 
-# Activate the Conda environment.
-# This works for most Conda/Miniconda installations.
-if command -v conda >/dev/null 2>&1; then
-    source "$(conda info --base)/etc/profile.d/conda.sh"
-    conda activate "${CONDA_ENV_NAME}"
-else
-    echo "ERROR: conda was not found in PATH. Please install Conda or activate the environment manually." >&2
-    exit 1
+# Activate the requested environment unless it is already active.
+if [[ "${CONDA_DEFAULT_ENV:-}" != "${CONDA_ENV_NAME}" ]]; then
+    MICROMAMBA_BIN=""
+
+    # MAMBA_EXE is normally defined by "micromamba shell init".
+    if [[ -n "${MAMBA_EXE:-}" && -x "${MAMBA_EXE}" ]]; then
+        MICROMAMBA_BIN="${MAMBA_EXE}"
+    else
+        MICROMAMBA_BIN="$(type -P micromamba 2>/dev/null || true)"
+    fi
+
+    if [[ -n "${MICROMAMBA_BIN}" && -x "${MICROMAMBA_BIN}" ]]; then
+        eval "$("${MICROMAMBA_BIN}" shell hook --shell bash)"
+        micromamba activate "${CONDA_ENV_NAME}"
+    elif command -v conda >/dev/null 2>&1; then
+        source "$(conda info --base)/etc/profile.d/conda.sh"
+        conda activate "${CONDA_ENV_NAME}"
+    else
+        echo "ERROR: Neither micromamba nor Conda could be initialized." >&2
+        echo "Activate '${CONDA_ENV_NAME}' before submitting the job, or ensure MAMBA_EXE is exported." >&2
+        exit 1
+    fi
 fi
 
 # Add the repository to PYTHONPATH so internal modules can be imported.
-export PYTHONPATH="${PYTHONPATH:-}:${REPO_DIR}"
+export PYTHONPATH="${REPO_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
+# Prefer the C++ runtime provided by the activated environment.
+export LD_LIBRARY_PATH="${CONDA_PREFIX}/lib:${LD_LIBRARY_PATH:-}"
+# Use the Java runtime installed in the environment for PySpark.
+export JAVA_HOME="${CONDA_PREFIX}"
+export PATH="${JAVA_HOME}/bin:${PATH}"
 
 # Define frequently used paths.
 TRAINING_INPUT="${DATA_DIR}/${TRAINING_SET}"
@@ -174,7 +198,7 @@ if [[ "${CREATE_EMPTY_MODEL}" == true ]]; then
         -l "${N_LAYERS}" \
         -s "${HIDDEN_SIZE}" \
         -e "${EMBEDDING_SIZE}" \
-        -i "${TRAINING_RANDOMIZED_DIR}/001.smi" \
+        -i "${VOCABULARY_FILE}" \
         -o "${EMPTY_MODEL}"
 fi
 

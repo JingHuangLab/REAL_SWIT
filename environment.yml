@@ -2,15 +2,19 @@ name: real_swit
 channels:
   - pytorch
   - conda-forge
-  - defaults
 
 dependencies:
   # Python
   - python=3.8
   - pip
+  - openjdk=11
+  - sqlalchemy=1.4.*
+  - mkl<2024.1
+  - libstdcxx-ng>=9
+  - setuptools=59.5.0
 
   # Core scientific Python packages
-  - numpy=1.20.*
+  - numpy=1.19.5
   - pandas=1.3.*
   - scipy=1.6.*
   - scikit-learn=0.24.*
@@ -41,15 +45,14 @@ dependencies:
 
       # Generative model training utilities
       - tensorflow==2.5.0
-      - keras-nightly==2.5.0.dev2021032900
-      - Keras-Preprocessing==1.1.2
+      - protobuf==3.20.3
       - tensorboard==2.6.0
       - tensorboardX==2.4
 
       # Molecular preprocessing utilities
       - deepsmiles==1.0.1
       - MolVS==0.1.1
-      - syba==1.0.2a0
+      - pyspark==3.1.2  # Distributed SMILES preprocessing
 
       # Utility dependencies used by REINVENT-style scripts
       - pathos==0.2.8
