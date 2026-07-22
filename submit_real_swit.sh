@@ -34,8 +34,8 @@ set -euo pipefail
 # Conda environment name used for REAL-SWIT.
 CONDA_ENV_NAME="real_swit"
 
-# Optional CUDA module used on some Linux clusters.
-# Leave empty if your system does not use environment modules.
+# Optional CUDA module provided by the local cluster.
+# Leave empty if CUDA is available without loading an environment module.
 CUDA_MODULE=""
 
 # Number of CPU cores passed to Python scripts.

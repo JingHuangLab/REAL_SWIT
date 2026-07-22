@@ -37,7 +37,8 @@ dependencies:
   # Pip packages
   - pip:
       # Reinforcement-learning and distributed prediction utilities
-      - ray==1.5.1
+      - "ray[default]==1.5.1"
+      - aiohttp==3.7.4.post0
 
       # Target-specific scoring model training
       - pytorch-lightning==1.4.1
