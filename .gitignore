@@ -5,11 +5,6 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Logs
-job_logs/
-joblog/
-*.log
-*.err
-*.out
 
 # OS/editor files
 .DS_Store
