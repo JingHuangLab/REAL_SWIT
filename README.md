@@ -16,7 +16,7 @@ Pretrained model weights are hosted on the Hugging Face Hub: [REAL‑SWIT checkp
 
 REAL-SWIT was developed and tested on a Linux-based GPU cluster. Most Python scripts should also run on other platforms if the required dependencies are properly installed.
 
-- Conda or Miniconda
+- Micromamba (recommended) or Conda/Miniconda
 - Python environment specified in `environment.yml`
 - CUDA-enabled GPU recommended for model training and generation
 
