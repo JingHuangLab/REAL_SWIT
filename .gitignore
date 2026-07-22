@@ -5,6 +5,8 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Logs
+job_logs/*
+!job_logs/.gitkeep
 
 # OS/editor files
 .DS_Store
