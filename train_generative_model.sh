@@ -89,12 +89,26 @@ VOCABULARY_FILE="data/demo_data/data4vocabulary_test.smi"
 # Whether to train the generative model.
 TRAIN_MODEL=true
 
-# Optional: sample molecules after training.
-# Set to true only if you want to sample from a specified trained model checkpoint.
-SAMPLE_AFTER_TRAINING=false
+# Whether to select the saved checkpoint with the lowest validation NLL.
+SELECT_BEST_CHECKPOINT=true
 
-# Trained model checkpoint used for optional sampling.
-SAMPLE_MODEL_PATH="${OUTPUT_DIR}/models/model.trained"
+# Output path for the selected checkpoint.
+BEST_MODEL_PATH="${OUTPUT_DIR}/models/model.best"
+
+# Offset between TensorBoard steps and checkpoint epoch numbers.
+# Keep 0 for a normal training run. Change only when selecting from logs created
+# by a resumed run whose TensorBoard steps restarted from zero.
+BEST_EPOCH_OFFSET=0
+
+# Optional: sample molecules after training.
+# Set to true only if you want to sample after checkpoint selection.
+SAMPLE_AFTER_TRAINING=true
+
+# Model checkpoint used for sampling.
+# If TRAIN_MODEL=true and SAMPLE_AFTER_TRAINING=true, leave this empty to use
+# BEST_MODEL_PATH automatically. Otherwise, set the checkpoint path explicitly
+# when you want to sample from an existing model.
+SAMPLE_MODEL_PATH=""
 
 # Number of molecules to sample if SAMPLE_AFTER_TRAINING=true.
 N_SAMPLED_MOLECULES=10000
@@ -217,8 +231,28 @@ if [[ "${TRAIN_MODEL}" == true ]]; then
         --batch-size "${BATCH_SIZE}"
 fi
 
-# Optional step: sample molecules from a trained model.
+# Step 4: select the saved checkpoint with the lowest validation NLL.
+if [[ "${SELECT_BEST_CHECKPOINT}" == true ]]; then
+    echo "Selecting the checkpoint with the lowest validation NLL..."
+    time python gen_models/select_best_checkpoint.py \
+        --tensorboard-dir "${TENSORBOARD_DIR}" \
+        --model-prefix "${TRAINED_MODEL_PREFIX}" \
+        --output "${BEST_MODEL_PATH}" \
+        --epoch-offset "${BEST_EPOCH_OFFSET}"
+fi
+
+# Step 5: optionally sample molecules from the selected checkpoint.
 if [[ "${SAMPLE_AFTER_TRAINING}" == true ]]; then
+    if [[ -z "${SAMPLE_MODEL_PATH}" ]]; then
+        echo "ERROR: SAMPLE_MODEL_PATH must be set when sampling without training in the same run." >&2
+        exit 1
+    fi
+
+    if [[ ! -f "${SAMPLE_MODEL_PATH}" ]]; then
+        echo "ERROR: sampling checkpoint not found: ${SAMPLE_MODEL_PATH}" >&2
+        exit 1
+    fi
+
     echo "Sampling molecules from the trained generative model..."
     time python gen_models/sample_from_model.py \
         -m "${SAMPLE_MODEL_PATH}" \

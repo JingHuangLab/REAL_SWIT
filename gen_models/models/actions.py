@@ -281,7 +281,11 @@ class SampleModel(Action):
         molecules_left = num
         for _ in range(num_batches):
             current_batch_size = min(molecules_left, self.batch_size)
-            for smi, nll in self.model.sample_smiles(current_batch_size):
+            smiles, nlls = self.model.sample_smiles(
+                num=current_batch_size,
+                batch_size=current_batch_size
+            )
+            for smi, nll in zip(smiles, nlls):
                 yield (smi, nll)
             molecules_left -= current_batch_size
 
