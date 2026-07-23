@@ -76,9 +76,9 @@ Modes:
       If RL_RUN_NAME is omitted, DEFAULT_RL_RUN_NAME is used.
 
 Examples:
-  bash submit_real_swit.sh ROCK1 train data/demo_data/rock1_train_demo.csv data/demo_data/rock1_test_demo.csv
-  bash submit_real_swit.sh ROCK1 predict examples/ROCK1/lightning_logs/version_0/checkpoints/epoch=9-step=159.ckpt data/demo_data/rock1_test_demo.csv
-  bash submit_real_swit.sh ROCK1 generate run_001
+  sbash submit_real_swit.sh ROCK1 train data/demo_data/rock1_train_demo.csv data/demo_data/rock1_test_demo.csv
+  sbash submit_real_swit.sh ROCK1 predict examples/ROCK1/lightning_logs/version_0/checkpoints/epoch=9-step=159.ckpt data/demo_data/rock1_test_demo.csv
+  sbash submit_real_swit.sh ROCK1 generate run_001
 USAGE
 }
 

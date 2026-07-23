@@ -273,7 +273,8 @@ def plot_predictions(
 
 def main() -> None:
     args = parse_args()
-    suffix = datetime.now().strftime("%Y_%m_%d")
+    current_time = datetime.now()
+    suffix = f"{current_time.year}_{current_time.month}_{current_time.day}"
 
     output_dir = args.output_dir or Path("examples") / args.task_name / "preds"
     output_dir.mkdir(parents=True, exist_ok=True)

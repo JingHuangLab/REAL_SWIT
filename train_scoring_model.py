@@ -102,7 +102,7 @@ def main(argv=None):
         se_lst = []
         new_pred = []
         new_ys = []
-        pred_file = preds_dir / f"prediction{suffix}.csv"
+        pred_file = preds_dir / f"predictions_{suffix}.csv"
         with pred_file.open('w') as writer:
             writer.write("prediction,target\n")
             for idx, target_score in enumerate(ys):
@@ -142,7 +142,7 @@ def main(argv=None):
         plt.plot(x_diag, x_diag, "b--")
         plt.xlabel("prediction", size=30)
         plt.ylabel("ground truth", size=30)
-        plot_path = preds_dir / f"pred_target_scatter{suffix}.png"
+        plot_path = preds_dir / f"pred_target_scatter_{suffix}.png"
         try:
             plt.savefig(plot_path)
             logger.info("Saved scatter plot to %s", plot_path)
